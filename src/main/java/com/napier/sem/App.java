@@ -63,32 +63,3 @@ public class App {
             }
         } while (!validInput);
     }
-
-    // Method to print all countries
-    public static void printAllCountries(Connection con) {
-        try (Statement stmt = con.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT Code, Name, Continent, Region, Population FROM country")) {
-            while (rs.next()) {
-                System.out.println("Country Code: " + rs.getString("Code") +
-                        ", Name: " + rs.getString("Name") +
-                        ", Continent: " + rs.getString("Continent") +
-                        ", Region: " + rs.getString("Region") +
-                        ", Population: " + rs.getInt("Population"));
-            }
-        } catch (SQLException e) {
-            System.out.println("Failed to retrieve countries: " + e.getMessage());
-        }
-    }
-
-
-    public static void printAllCities(Connection con) {
-        try (Statement stmt = con.createStatement(); //statement object is inbuilt to JDBC
-             ResultSet rs = stmt.executeQuery("SELECT ID, Name FROM city")) { //Resultset object is inbuilt to JDBC
-            while (rs.next()) {
-                System.out.println("City ID: " + rs.getInt("ID") + ", Name: " + rs.getString("Name"));
-            }
-        } catch (SQLException e) {
-            System.out.println("Failed to retrieve cities: " + e.getMessage());
-        }
-    }
-}
