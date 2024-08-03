@@ -1,5 +1,11 @@
 package com.napier.sem;
 
+//As I had a lot of problems getting the method from the Labs to work, I had to find alternatives. To do this, I used
+//The following sources
+//https://www.baeldung.com/java-jdbc
+
+
+
 import java.util.Scanner;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -13,11 +19,9 @@ public class App {
         String jdbcURL = "jdbc:mysql://localhost:3306/world"; //path to the database
         String username = "root"; // This is the username to be used to login
         String password = "example"; // The password to use : this is example as I started setting it to example when setting up the database as it
-                                    // took many tries
-
-
+                                     // took many tries
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver"); //prepares the driver
+            Class.forName("com.mysql.cj.jdbc.Driver"); //loads the driver class
             System.out.println("MySQL JDBC Driver Registered!"); //success message
         } catch (ClassNotFoundException e) {
             System.out.println("Driver Error"); //failure message
@@ -53,10 +57,10 @@ public class App {
                 validInput = true;
             } else if (input == 3) {
                 System.out.println("Displaying Capital City report...");
+                printAllCapitals(connection);
                 validInput = true;
             } else if (input == 4) {
                 System.out.println("Displaying Population report...");
-
                 validInput = true;
             } else {
                 System.out.println("Invalid Input");
