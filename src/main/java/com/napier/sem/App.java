@@ -67,3 +67,40 @@ public class App {
             }
         } while (!validInput);
     }
+
+    // Method to print all countries
+    public static void printAllCountries(Connection con) {
+        try (Statement stmt = con.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT Name, Population FROM country ORDER BY Population desc ")) {
+            while (rs.next()) {
+                System.out.println(", Name: " + rs.getString("Name") + ", Population: " + rs.getString("Population"));
+            }
+        } catch (SQLException e) {
+            System.out.println("Failed to retrieve countries: " + e.getMessage());
+        }
+    }
+
+    //cities organised by population
+    public static void printAllCities(Connection con) {
+        try (Statement stmt = con.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT ID, Name, Population FROM city ORDER BY Population desc ")) {
+            while (rs.next()) {
+                System.out.println(", Name: " + rs.getString("Name") + ", Population: " + rs.getString("Population") + ", ID: " + rs.getString("ID"));
+            }
+        } catch (SQLException e) {
+            System.out.println("Failed to retrieve countries: " + e.getMessage());
+        }
+    }
+
+
+    public static void printAllCapitals(Connection con) {
+        try (Statement stmt = con.createStatement(); //statement object is inbuilt to JDBC
+             ResultSet rs = stmt.executeQuery("SELECT ID, Name FROM capital")) { //Resultset object is inbuilt to JDBC
+            while (rs.next()) {
+                System.out.println("City ID: " + rs.getInt("ID") + ", Name: " + rs.getString("Name"));
+            }
+        } catch (SQLException e) {
+            System.out.println("Failed to retrieve cities: " + e.getMessage());
+        }
+    }
+}
