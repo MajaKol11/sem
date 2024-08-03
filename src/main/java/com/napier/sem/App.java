@@ -19,7 +19,7 @@ public class App {
         String jdbcURL = "jdbc:mysql://localhost:3306/world"; //path to the database
         String username = "root"; // This is the username to be used to login
         String password = "example"; // The password to use : this is example as I started setting it to example when setting up the database as it
-                                     // took many tries
+        // took many tries
         try {
             Class.forName("com.mysql.cj.jdbc.Driver"); //loads the driver class
             System.out.println("MySQL JDBC Driver Registered!"); //success message
@@ -71,21 +71,21 @@ public class App {
     // Method to print all countries
     public static void printAllCountries(Connection con) {
         try (Statement stmt = con.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT Name, Population FROM country ORDER BY Population desc ")) {
+             ResultSet rs = stmt.executeQuery("SELECT Code, Name, Population FROM country ORDER BY Population desc ")) {
             while (rs.next()) {
-                System.out.println(", Name: " + rs.getString("Name") + ", Population: " + rs.getString("Population"));
+                System.out.println("Country Code: " + rs.getString("Code") + ", Name: " + rs.getString("Name") + ", Population: " + rs.getString("Population"));
             }
         } catch (SQLException e) {
             System.out.println("Failed to retrieve countries: " + e.getMessage());
         }
     }
 
-    //cities organised by population
+    //citis organised by population
     public static void printAllCities(Connection con) {
         try (Statement stmt = con.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT ID, Name, Population FROM city ORDER BY Population desc ")) {
+             ResultSet rs = stmt.executeQuery("SELECT CountryCode, Name, Population FROM city ORDER BY Population desc")) {
             while (rs.next()) {
-                System.out.println(", Name: " + rs.getString("Name") + ", Population: " + rs.getString("Population") + ", ID: " + rs.getString("ID"));
+                System.out.println("Country Code: " + rs.getString("CountryCode") + ", Name: " + rs.getString("Name") + ", Population: " + rs.getString("Population"));
             }
         } catch (SQLException e) {
             System.out.println("Failed to retrieve countries: " + e.getMessage());
@@ -94,13 +94,29 @@ public class App {
 
 
     public static void printAllCapitals(Connection con) {
-        try (Statement stmt = con.createStatement(); //statement object is inbuilt to JDBC
-             ResultSet rs = stmt.executeQuery("SELECT ID, Name FROM capital")) { //Resultset object is inbuilt to JDBC
+        int problemCount = 0;  // Counter for problematic records. Added as some fields seemed to have syntax errors which would throw exceptions
+
+        try (Statement stmt = con.createStatement()) {
+            ResultSet rs = stmt.executeQuery("SELECT Code, Capital FROM country");
+
             while (rs.next()) {
-                System.out.println("City ID: " + rs.getInt("ID") + ", Name: " + rs.getString("Name"));
+                try {
+                    String countryCode = rs.getString("Code");
+                    String capital = rs.getString("Capital");
+                    System.out.println("Country Code: " + countryCode + ", Capital: " + capital);
+                } catch (SQLException e) {
+                    problemCount++;  // Increment the problem counter
+                    System.out.println("Problem with record: " + e.getMessage());
+                }
             }
+
+            if (problemCount > 0) {
+                System.out.println("Number of problematic records: " + problemCount);
+            }
+
         } catch (SQLException e) {
-            System.out.println("Failed to retrieve cities: " + e.getMessage());
+            System.out.println("Failed to retrieve capitals: " + e.getMessage());
         }
     }
+
 }
