@@ -41,39 +41,118 @@ public class App {
     }
 
     public static void menu(Connection connection) {
-        System.out.println("What data would you like to display? \nFor Country press 1, for City press 2, for Capital City press 3, for Population press 4 ");
+        System.out.println("What data would you like to display? \n1. Country \n2. City \n3. Capital City \n4. Other \n5. Exit");
         Scanner scanner = new Scanner(System.in); //prepare scanner
         int input = scanner.nextInt(); //take user input
         boolean validInput = false; //set validInput to false by default
 
         do {
             if (input == 1) {
-                System.out.println("Displaying Country report...");
-                printAllCountries(connection); // pass connection to the method
-                validInput = true;
+                System.out.println("Displaying Country menu...");
+                System.out.println("1. Full report \n2. Top N populated countries");
+                int countryInput = scanner.nextInt();
+                do {
+                    if (countryInput == 1) {
+                        System.out.println("Displaying Country report...");
+                        printAllCountries(connection); // pass connection to the method
+                        validInput = true;
+                    } else if (countryInput == 2) {
+                        System.out.println("How many countries would you like to view?");
+                        int num = scanner.nextInt();
+
+                        System.out.println("Displaying top " + num + " populated countries...");
+                        topPopulatedCountry(connection, num);
+                    }
+                }while (!validInput);
             } else if (input == 2) {
-                System.out.println("Displaying City report...");
-                printAllCities(connection); // Pass connection to the method
-                validInput = true;
+                System.out.println("Displaying City menu...");
+                System.out.println("1. Full report \n2. Top N populated cities");
+                int cityInput = scanner.nextInt();
+                do {
+                    if (cityInput == 1) {
+                        System.out.println("Displaying City report...");
+                        printAllCities(connection); // Pass connection to the method
+                        validInput = true;
+                    } else if (cityInput == 2) {
+                        System.out.println("How many cities would you like to view?");
+                        int num = scanner.nextInt();
+
+                        System.out.println("Displaying top " + num + " populated cities...");
+                        topPopulatedCity(connection, num);
+                    }
+                }while (!validInput);
             } else if (input == 3) {
                 System.out.println("Displaying Capital City report...");
                 printAllCapitals(connection);
                 validInput = true;
             } else if (input == 4) {
-                System.out.println("Displaying Population report...");
+                System.out.println("1. Languages Report");
+                int languageInput = scanner.nextInt();
+                do {
+                    if (languageInput == 1) {
+                        System.out.println("Displaying Language report...");
+                        printLanguages(connection); // Pass connection to the method
+                        validInput = true;
+                    }
+                }while (!validInput);
                 validInput = true;
+            } else if (input == 5) {
+                System.out.println("Exiting...");
+                System.exit(0);
+
             } else {
                 System.out.println("Invalid Input");
             }
         } while (!validInput);
     }
 
+    public static void printLanguages(Connection con) {
+        try (Statement stmt = con.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT ")) {
+            while (rs.next()) {
+                System.out.println("");
+            }
+        } catch (SQLException e) {
+            System.out.println("Failed to retrieve languages: " + e.getMessage());
+        }
+    }
+
+    public static void topPopulatedCountry(Connection con, int num){
+        int counter = 0;
+        try (Statement stmt = con.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT Code, Name, Population FROM country ORDER BY Population desc ")) {
+            while (rs.next() && counter <= num-1) {
+                System.out.println("Country Code: " + rs.getString("Code") + ", Name: " + rs.getString("Name") + ", Population: " + rs.getString("Population"));
+                counter++;
+            }
+        } catch (SQLException e) {
+            System.out.println("Failed to retrieve countries: " + e.getMessage());
+        }
+        menu(con);
+    }
+
+    public static void topPopulatedCity(Connection con, int num){
+        int counter = 0;
+        try (Statement stmt = con.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT Name, Population FROM city ORDER BY Population desc ")) {
+            while (rs.next() && counter <= num-1) {
+                System.out.println("Name: " + rs.getString("Name") + ", Population: " + rs.getString("Population"));
+                counter++;
+            }
+        } catch (SQLException e) {
+            System.out.println("Failed to retrieve cities: " + e.getMessage());
+        }
+    }
+
+
+
+
     // Method to print all countries
     public static void printAllCountries(Connection con) {
         try (Statement stmt = con.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT Code, Name, Population FROM country ORDER BY Population desc ")) {
+             ResultSet rs = stmt.executeQuery("SELECT Code, Name, Continent, Region, Population, Capital FROM country ORDER BY Population desc ")) {
             while (rs.next()) {
-                System.out.println("Country Code: " + rs.getString("Code") + ", Name: " + rs.getString("Name") + ", Population: " + rs.getString("Population"));
+                System.out.println("Country Code: " + rs.getString("Code") + ", Name: " + rs.getString("Name") + ", Continent: " + rs.getString("Continent") + ", Region: " + rs.getString("Region") + ", Population: " + rs.getString("Population"));
             }
         } catch (SQLException e) {
             System.out.println("Failed to retrieve countries: " + e.getMessage());
@@ -83,9 +162,9 @@ public class App {
     //citis organised by population
     public static void printAllCities(Connection con) {
         try (Statement stmt = con.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT CountryCode, Name, Population FROM city ORDER BY Population desc")) {
+             ResultSet rs = stmt.executeQuery("SELECT city.Name AS CityName, country.Name AS CountryName, city.District, city.Population FROM city INNER JOIN country ON city.CountryCode=country.Code ORDER BY city.Population desc")) {
             while (rs.next()) {
-                System.out.println("Country Code: " + rs.getString("CountryCode") + ", Name: " + rs.getString("Name") + ", Population: " + rs.getString("Population"));
+                System.out.println("Name: " + rs.getString("CityName") + ", Country: " + rs.getString("CountryName") + ", District: " + rs.getString("District") + ", Population: " + rs.getString("Population"));
             }
         } catch (SQLException e) {
             System.out.println("Failed to retrieve countries: " + e.getMessage());
@@ -97,7 +176,7 @@ public class App {
         int problemCount = 0;  // Counter for problematic records. Added as some fields seemed to have syntax errors which would throw exceptions
 
         try (Statement stmt = con.createStatement()) {
-            ResultSet rs = stmt.executeQuery("SELECT Code, Capital FROM country");
+            ResultSet rs = stmt.executeQuery("SELECT Capital AS Name, Name AS Country FROM country");
 
             while (rs.next()) {
                 try {
