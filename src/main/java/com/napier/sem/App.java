@@ -108,9 +108,9 @@ public class App {
 
     public static void printLanguages(Connection con) {
         try (Statement stmt = con.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT ")) {
+             ResultSet rs = stmt.executeQuery("SELECT Language, SUM(country.Population * countrylanguage.Percentage / 100) AS Speakers, (SUM(country.Population * countrylanguage.Percentage / 100) / (SELECT SUM(Population) FROM country) * 100) AS PercentageofWorld FROM country JOIN countrylanguage ON country.Code = countrylanguage.CountryCode WHERE countrylanguage.Language IN ('Chinese', 'English', 'Spanish') GROUP BY countrylanguage.Language ORDER BY Speakers desc")) {
             while (rs.next()) {
-                System.out.println("");
+                System.out.println(rs.getString("Language") + " Speakers: " + rs.getString("Speakers") + ", % of World: " + rs.getString("PercentageofWorld") );
             }
         } catch (SQLException e) {
             System.out.println("Failed to retrieve languages: " + e.getMessage());
@@ -152,7 +152,7 @@ public class App {
         try (Statement stmt = con.createStatement();
              ResultSet rs = stmt.executeQuery("SELECT Code, Name, Continent, Region, Population, Capital FROM country ORDER BY Population desc ")) {
             while (rs.next()) {
-                System.out.println("Country Code: " + rs.getString("Code") + ", Name: " + rs.getString("Name") + ", Continent: " + rs.getString("Continent") + ", Region: " + rs.getString("Region") + ", Population: " + rs.getString("Population"));
+                System.out.println("Country Code: " + rs.getString("Code") + ", Name: " + rs.getString("Name") + ", Continent: " + rs.getString("Continent") + ", Region: " + rs.getString("Region") + ", Population: " + rs.getString("Population") + ", Capital: " + rs.getString("Capital"));
             }
         } catch (SQLException e) {
             System.out.println("Failed to retrieve countries: " + e.getMessage());
@@ -176,13 +176,12 @@ public class App {
         int problemCount = 0;  // Counter for problematic records. Added as some fields seemed to have syntax errors which would throw exceptions
 
         try (Statement stmt = con.createStatement()) {
-            ResultSet rs = stmt.executeQuery("SELECT Capital AS Name, Name AS Country FROM country");
+            ResultSet rs = stmt.executeQuery("SELECT city.Name AS Capital, country.Name AS Country, city.Population FROM country INNER JOIN city ON city.ID=country.Capital ORDER BY city.Population desc");
 
             while (rs.next()) {
                 try {
-                    String countryCode = rs.getString("Code");
                     String capital = rs.getString("Capital");
-                    System.out.println("Country Code: " + countryCode + ", Capital: " + capital);
+                    System.out.println("Capital: " + capital + ", Population: " + rs.getString("Population"));
                 } catch (SQLException e) {
                     problemCount++;  // Increment the problem counter
                     System.out.println("Problem with record: " + e.getMessage());
