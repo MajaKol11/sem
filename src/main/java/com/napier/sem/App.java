@@ -86,13 +86,39 @@ public class App {
                 printAllCapitals(connection);
                 validInput = true;
             } else if (input == 4) {
-                System.out.println("1. Languages Report");
+                System.out.println("1. Languages Report \n2. Urbanisation Levels \n3. World Population \n4. Continent Search \n5. Region Search \n6. Country Search");
                 int languageInput = scanner.nextInt();
                 do {
                     if (languageInput == 1) {
                         System.out.println("Displaying Language report...");
                         printLanguages(connection); // Pass connection to the method
                         validInput = true;
+                    }
+                    else if (languageInput == 2) {
+                        System.out.println("Displaying Urbanisation levels...");
+                        printUrban(connection);
+                    }
+                    else if (languageInput == 3) {
+                        System.out.println("Displaying World population...");
+                        printWorld(connection);
+                    }
+                    else if (languageInput == 4) {
+                        System.out.println("Search for a continent");
+                        scanner.nextLine();
+                        String search = scanner.nextLine();
+                        printContinentSearch(connection, search);
+                    }
+                    else if (languageInput == 5) {
+                        System.out.println("Search for a region");
+                        scanner.nextLine();
+                        String search = scanner.nextLine();
+                        printRegionSearch(connection, search);
+                    }
+                    else if (languageInput == 6) {
+                        System.out.println("Search for a Country");
+                        scanner.nextLine();
+                        String search = scanner.nextLine();
+                        printCountrySearch(connection, search);
                     }
                 }while (!validInput);
                 validInput = true;
@@ -104,6 +130,65 @@ public class App {
                 System.out.println("Invalid Input");
             }
         } while (!validInput);
+    }
+
+    public static void printCountrySearch(Connection con, String search) {
+        try (Statement stmt = con.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT SUM(Population) AS CountryPopulation FROM country WHERE Name = '" + search + "' ") ){
+            while (rs.next()) {
+                System.out.println("Country Population: " + rs.getLong("CountryPopulation"));
+                menu(con);
+            }
+        } catch (SQLException e) {
+            System.out.println("Failed to retrieve data: " + e.getMessage());
+        }
+    }
+
+    public static void printRegionSearch(Connection con, String search) {
+        try (Statement stmt = con.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT SUM(Population) AS RegionPopulation FROM country WHERE Region = '" + search + "' ") ){
+            while (rs.next()) {
+                System.out.println("Region Population: " + rs.getLong("RegionPopulation"));
+                menu(con);
+            }
+        } catch (SQLException e) {
+            System.out.println("Failed to retrieve data: " + e.getMessage());
+        }
+    }
+
+    public static void printContinentSearch(Connection con, String search) {
+        try (Statement stmt = con.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT SUM(Population) AS ContinentPopulation FROM country WHERE Continent = '" + search + "' ") ){
+            while (rs.next()) {
+                System.out.println("Continent Population: " + rs.getLong("ContinentPopulation"));
+                menu(con);
+            }
+        } catch (SQLException e) {
+            System.out.println("Failed to retrieve data: " + e.getMessage());
+        }
+    }
+
+    public static void printWorld(Connection con) {
+        try (Statement stmt = con.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT SUM(Population) AS WorldPopulation FROM country")) {
+            while (rs.next()) {
+                System.out.println("World Population: " + rs.getString("WorldPopulation"));
+                menu(con);
+            }
+        } catch (SQLException e) {
+            System.out.println("Failed to retrieve data: " + e.getMessage());
+        }
+    }
+
+    public static void printUrban(Connection con) {
+        try (Statement stmt = con.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT ")) {
+            while (rs.next()) {
+                System.out.println(rs.getString("Language") + " Speakers: " + rs.getString("Speakers") + ", % of World: " + rs.getString("PercentageofWorld") );
+            }
+        } catch (SQLException e) {
+            System.out.println("Failed to retrieve data: " + e.getMessage());
+        }
     }
 
     public static void printLanguages(Connection con) {
@@ -142,6 +227,7 @@ public class App {
         } catch (SQLException e) {
             System.out.println("Failed to retrieve cities: " + e.getMessage());
         }
+        menu(con);
     }
 
 
