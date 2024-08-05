@@ -86,7 +86,7 @@ public class App {
                 printAllCapitals(connection);
                 validInput = true;
             } else if (input == 4) {
-                System.out.println("1. Languages Report \n2. Urbanisation Levels \n3. World Population \n4. Continent Search \n5. Region Search \n6. Country Search");
+                System.out.println("1. Languages Report \n2. Urbanisation Levels \n3. World Population \n4. Continent Search \n5. Region Search \n6. Country Search \n7. District Search \n8. City Search");
                 int languageInput = scanner.nextInt();
                 do {
                     if (languageInput == 1) {
@@ -120,6 +120,18 @@ public class App {
                         String search = scanner.nextLine();
                         printCountrySearch(connection, search);
                     }
+                    else if (languageInput == 7) {
+                        System.out.println("Search for a District");
+                        scanner.nextLine();
+                        String search = scanner.nextLine();
+                        printDistrictSearch(connection, search);
+                    }
+                    else if (languageInput == 8) {
+                        System.out.println("Search for a City");
+                        scanner.nextLine();
+                        String search = scanner.nextLine();
+                        printCitySearch(connection, search);
+                    }
                 }while (!validInput);
                 validInput = true;
             } else if (input == 5) {
@@ -130,6 +142,30 @@ public class App {
                 System.out.println("Invalid Input");
             }
         } while (!validInput);
+    }
+
+    public static void printCitySearch(Connection con, String search) {
+        try (Statement stmt = con.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT SUM(Population) AS CityPopulation FROM city WHERE Name = '" + search + "' ") ){
+            while (rs.next()) {
+                System.out.println("City Population: " + rs.getLong("CityPopulation"));
+                menu(con);
+            }
+        } catch (SQLException e) {
+            System.out.println("Failed to retrieve data: " + e.getMessage());
+        }
+    }
+
+    public static void printDistrictSearch(Connection con, String search) {
+        try (Statement stmt = con.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT SUM(Population) AS DistrictPopulation FROM city WHERE District = '" + search + "' ") ){
+            while (rs.next()) {
+                System.out.println("District Population: " + rs.getLong("DistrictPopulation"));
+                menu(con);
+            }
+        } catch (SQLException e) {
+            System.out.println("Failed to retrieve data: " + e.getMessage());
+        }
     }
 
     public static void printCountrySearch(Connection con, String search) {
